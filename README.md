@@ -70,26 +70,7 @@ m-espresso is a Flutter-based application designed for coffee shop owners to str
 - **Framework**: Flutter
 - **Programming Language**: Dart
 
----
 
-## Contribution
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create your feature branch:
-   ```bash
-   git checkout -b feature/YourFeatureName
-   ```
-3. Commit your changes:
-   ```bash
-   git commit -m "Add YourFeatureName"
-   ```
-4. Push to the branch:
-   ```bash
-   git push origin feature/YourFeatureName
-   ```
-5. Create a pull request.
-
----
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
