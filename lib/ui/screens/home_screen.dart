@@ -38,14 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
       itemQuantities.remove(coffee.id);
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${coffee.name} added to pending payments!')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text('${coffee.name} added to pending payments!')),
+    // );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    return Scaffold(
       backgroundColor: Apptheme.backgroundColor,
       body: SafeArea(
         child: Padding(
@@ -53,46 +53,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 10),
+              const SizedBox(height: 25),
               Text('Menu Items', style: Apptheme.tileLarge),
               const SizedBox(height: 28),
-              SizedBox(
-                height: 0,
-                /*   child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: DataTmp.chips.length,
-                  itemBuilder: (context, index) {
-                    final category = DataTmp.chips[index];
-                    bool isActive = category == selectedCategory;
-                    return GestureDetector(
-                      onTap: () => setState(() => selectedCategory = category),
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 27),
-                        child: Column(
-                          children: [
-                            Text(
-                              category,
-                              style: isActive
-                                  ? Apptheme.chipActive
-                                  : Apptheme.chipInactive,
-                            ),
-                            const SizedBox(height: 2),
-                            Icon(
-                              Icons.circle,
-                              color: isActive
-                                  ? Apptheme.iconActiveColor
-                                  : Colors.transparent,
-                              size: 12,
-                            )
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-               */
-              ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Expanded(
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -120,16 +84,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) =>
-          //         PendingPaymentsScreen(pendingPayments: pendingPayments),
-          //   ),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  PendingPaymentsScreen(pendingPayments: pendingPayments),
+            ),
+          );
         },
         label: Text('Confirm (${pendingPayments.length})'),
-        backgroundColor: Apptheme.buttonBackground1Color,
         icon: const Icon(Icons.shopping_cart),
       ),
     );

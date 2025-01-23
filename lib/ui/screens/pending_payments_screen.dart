@@ -81,49 +81,51 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
                         itemCount: _pendingPayments.length,
                         itemBuilder: (context, index) {
                           final coffee = _pendingPayments[index];
-                          return Dismissible(
-                            key: Key('${coffee.id}_$index'),
-                            direction: DismissDirection.endToStart,
-                            background: Container(
-                              alignment: Alignment.centerRight,
-                              padding: const EdgeInsets.only(right: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade100,
-                                borderRadius: BorderRadius.circular(15),
+                          return KeyedSubtree(
+                            child: Dismissible(
+                              key: UniqueKey(),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.only(right: 20),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: const Icon(Icons.check,
+                                    color: Colors.green),
                               ),
-                              child:
-                                  const Icon(Icons.delete, color: Colors.red),
-                            ),
-                            onDismissed: (_) => _removeItem(index),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Apptheme.cardChipBackgroundColor,
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(12),
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Image.network(
-                                    coffee.imageUrl,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
+                              onDismissed: (_) => _removeItem(index),
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: Apptheme.cardChipBackgroundColor,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(12),
+                                  leading: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      coffee.imageUrl,
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
-                                ),
-                                title: Text(
-                                  coffee.name,
-                                  style: Apptheme.cardTitleSmall,
-                                ),
-                                subtitle: Text(
-                                  '\$${coffee.price.toStringAsFixed(2)}',
-                                  style: Apptheme.priceValueSmall,
-                                ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _removeItem(index),
-                                  color: Colors.red,
+                                  title: Text(
+                                    coffee.name,
+                                    style: Apptheme.cardTitleSmall,
+                                  ),
+                                  subtitle: Text(
+                                    '\$${coffee.price.toStringAsFixed(2)}',
+                                    style: Apptheme.priceValueSmall,
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.check_box),
+                                    onPressed: () => _removeItem(index),
+                                    color: Colors.green,
+                                  ),
                                 ),
                               ),
                             ),

@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:m_espresso_v1/ui/screens/login_screen.dart';
@@ -22,6 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   bool _isLoading = false;
   String _errorMessage = '';
+  bool isNavigated = false;
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -39,7 +43,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _signUp() async {
+  Future<void> signUserUp() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -51,14 +55,17 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       // Create user with email and password
+      print("signing up");
       final credential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
+      print("signed up");
 
       // Store additional user data in Firestore
       if (credential.user != null) {
+        print(credential.user.toString());
         await FirebaseFirestore.instance
             .collection('users')
             .doc(credential.user!.uid)
@@ -67,45 +74,49 @@ class _SignupScreenState extends State<SignupScreen> {
           'email': emailController.text.trim(),
           'createdAt': FieldValue.serverTimestamp(),
         });
+        print("nav");
+
+        // Check and navigate only once
+        if (!isNavigated) {
+          isNavigated = true;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
       }
 
-      // Navigate to login screen on success
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-      }
+      // // Navigate to login screen on success
+      // if (mounted) {
+      // }
     } on FirebaseAuthException catch (e) {
-      String message;
-      switch (e.code) {
-        case 'weak-password':
-          message = 'The password provided is too weak.';
-          break;
-        case 'email-already-in-use':
-          message = 'An account already exists for that email.';
-          break;
-        case 'invalid-email':
-          message = 'The email address is not valid.';
-          break;
-        default:
-          message = 'An error occurred. Please try again.';
-      }
+      log("Erroe: $e");
+      String message = _handleFirebaseAuthError(e);
       setState(() {
         _errorMessage = message;
+        _isLoading = false; // Explicitly set loading to false
       });
       _showErrorDialog(message);
     } catch (e) {
+      log("Error2:$e");
       setState(() {
         _errorMessage = 'An error occurred. Please try again.';
+        _isLoading = false; // Explicitly set loading to false
       });
       _showErrorDialog(_errorMessage);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    }
+  }
+
+  String _handleFirebaseAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-password':
+        return 'The password provided is too weak.';
+      case 'email-already-exists':
+        return 'An account already exists for that email.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
+      default:
+        return 'An error occurred. Please try again.';
     }
   }
 
@@ -131,8 +142,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   hintText: 'Enter your name',
                   icon: Icons.person,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                    if (value == null || value.isEmpty || value.length < 3) {
+                      return 'Please a valid name';
                     }
                     return null;
                   },
@@ -190,10 +201,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                CommonButton(
-                  onTap: _isLoading ? null : _signUp,
-                  text: _isLoading ? 'Please wait...' : 'Sign Up',
-                ),
+                _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Apptheme.orange1Color,
+                      )
+                    : CommonButton(
+                        onTap: signUserUp,
+                        text: 'Sign Up',
+                      ),
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
