@@ -1,7 +1,5 @@
 export 'home_screen.dart';
-export 'detail_screen.dart';
 export 'introduction_screen.dart';
-export 'main_screen.dart';
 export 'pending_payments_screen.dart';
 export 'login_screen.dart';
 export 'signup_screen.dart';

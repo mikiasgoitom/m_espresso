@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(
             // Replace HomeScreen() with your actual main screen widget
-            builder: (context) => const MainScreen(),
+            builder: (context) => const HomeScreen(),
           ),
         );
       }
@@ -167,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 SizedBox(height: 10),
-                const Padding(
+                /* const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Align(
                     alignment: Alignment.centerRight,
@@ -181,6 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
+                 */
                 _isLoading
                     ? const CircularProgressIndicator(
                         color: Apptheme.orange1Color,

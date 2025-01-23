@@ -55,42 +55,20 @@ class _SignupScreenState extends State<SignupScreen> {
 
     try {
       // Create user with email and password
-      print("signing up");
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      print("signed up");
 
-      // Store additional user data in Firestore
-      if (credential.user != null) {
-        print(credential.user.toString());
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(credential.user!.uid)
-            .set({
-          'name': nameController.text.trim(),
-          'email': emailController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-        print("nav");
-
-        // Check and navigate only once
-        if (!isNavigated) {
-          isNavigated = true;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-        }
+      // Navigate to login screen on success
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
       }
-
-      // // Navigate to login screen on success
-      // if (mounted) {
-      // }
     } on FirebaseAuthException catch (e) {
-      log("Erroe: $e");
+      log("Error: $e");
       String message = _handleFirebaseAuthError(e);
       setState(() {
         _errorMessage = message;
@@ -98,12 +76,18 @@ class _SignupScreenState extends State<SignupScreen> {
       });
       _showErrorDialog(message);
     } catch (e) {
-      log("Error2:$e");
+      log("Error2: $e");
       setState(() {
         _errorMessage = 'An error occurred. Please try again.';
         _isLoading = false; // Explicitly set loading to false
       });
       _showErrorDialog(_errorMessage);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Ensure loading is reset
+        });
+      }
     }
   }
 
@@ -136,17 +120,6 @@ class _SignupScreenState extends State<SignupScreen> {
                   width: double.infinity,
                   height: height / 2.7,
                   child: Image.asset('assets/images/auth.png'),
-                ),
-                TextFeildInput(
-                  textEditingController: nameController,
-                  hintText: 'Enter your name',
-                  icon: Icons.person,
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length < 3) {
-                      return 'Please a valid name';
-                    }
-                    return null;
-                  },
                 ),
                 TextFeildInput(
                   textEditingController: emailController,

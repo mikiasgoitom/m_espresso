@@ -3,14 +3,6 @@ import 'package:m_espresso_v1/entities/introduction.dart';
 import '../entities/coffee.dart';
 
 class DataTmp {
-  static const chips = <String>[
-    'Coffee',
-    'Tea',
-    'Juice',
-    'Smoothie',
-    'Pastry',
-  ];
-
   // Introduction
   static final List<Introduction> introductionList = [
     Introduction(
@@ -36,31 +28,31 @@ class DataTmp {
       id: 1,
       name: 'Americano',
       imageUrl: 'https://i.imgur.com/y6Fj8tu.jpg',
-      price: 3.8,
+      price: 90,
     ),
     Coffee(
       id: 2,
       name: 'Latte',
       imageUrl: 'https://i.imgur.com/tEf7zGq.jpg',
-      price: 3.5,
+      price: 70,
     ),
     Coffee(
       id: 3,
       name: 'Cappuccino',
       imageUrl: 'https://i.imgur.com/2aBjCR7.jpg',
-      price: 4.2,
+      price: 100,
     ),
     Coffee(
       id: 4,
       name: 'Espresso',
       imageUrl: 'https://i.imgur.com/HOU9gZO.jpg',
-      price: 4.2,
+      price: 120,
     ),
     Coffee(
       id: 5,
       name: 'Mocha',
       imageUrl: 'https://i.imgur.com/M73FiE2.jpg',
-      price: 4.4,
+      price: 70,
     ),
   ];
 }

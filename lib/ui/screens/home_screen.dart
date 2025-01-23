@@ -3,6 +3,8 @@ import 'package:m_espresso_v1/data/tmp_data.dart';
 import 'package:m_espresso_v1/entities/coffee.dart';
 import 'package:m_espresso_v1/ui/theme/app_theme.dart';
 import 'package:m_espresso_v1/ui/screens/screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 // import 'package:m_espresso_v1/ui/widgets/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,6 +18,25 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Coffee> pendingPayments = [];
   String selectedCategory = 'All';
   Map<int, int> itemQuantities = {};
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // Navigate to LoginScreen after logging out
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const IntroductionScreen(),
+        ),
+        (route) => false, // Remove all previous routes
+      );
+    } catch (e) {
+      print('Logout error: $e'); // Debugging purpose
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to logout. Please try again.')),
+      );
+    }
+  }
 
   void updateQuantity(Coffee coffee, int delta) {
     setState(() {
@@ -37,63 +58,103 @@ class _HomeScreenState extends State<HomeScreen> {
       }
       itemQuantities.remove(coffee.id);
     });
+  }
 
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(content: Text('${coffee.name} added to pending payments!')),
-    // );
+  void _onConfirmPressed(BuildContext context) {
+    // Navigate to PendingPaymentsScreen and pass the pendingPayments list
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PendingPaymentsScreen(
+          pendingPayments: pendingPayments,
+          onPendingPaymentsUpdated: (updatedPayments) {
+            // Update the pendingPayments list in HomeScreen
+            setState(() {
+              pendingPayments = updatedPayments;
+            });
+          },
+        ),
+      ),
+    ).then((_) {
+      // Clear the pendingPayments list after navigating
+      setState(() {
+        pendingPayments.clear();
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Apptheme.backgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 22, top: 30, right: 22),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 25),
-              Text('Menu Items', style: Apptheme.tileLarge),
-              const SizedBox(height: 28),
-              const SizedBox(height: 20),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.65,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 15,
+    return Material(
+      color: Apptheme.backgroundColor,
+      child: Scaffold(
+        backgroundColor: Apptheme.backgroundColor,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text('M Espresso'),
+          backgroundColor: Apptheme.buttonBackground1Color,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () => _logout(context),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 22, top: 30, right: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 25),
+                Text('Menu Items', style: Apptheme.tileLarge),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.65,
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                    ),
+                    itemCount: DataTmp.coffeeList.length,
+                    itemBuilder: (context, index) {
+                      final coffee = DataTmp.coffeeList[index];
+                      return EnhancedMenuItemCard(
+                        coffee: coffee,
+                        quantity: itemQuantities[coffee.id] ?? 0,
+                        onIncrementQuantity: () => updateQuantity(coffee, 1),
+                        onDecrementQuantity: () => updateQuantity(coffee, -1),
+                        onAddToPending: () => addToPendingPayments(coffee),
+                      );
+                    },
                   ),
-                  itemCount: DataTmp.coffeeList.length,
-                  itemBuilder: (context, index) {
-                    final coffee = DataTmp.coffeeList[index];
-                    return EnhancedMenuItemCard(
-                      coffee: coffee,
-                      quantity: itemQuantities[coffee.id] ?? 0,
-                      onIncrementQuantity: () => updateQuantity(coffee, 1),
-                      onDecrementQuantity: () => updateQuantity(coffee, -1),
-                      onAddToPending: () => addToPendingPayments(coffee),
-                    );
-                  },
                 ),
-              ),
-            ],
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                  color: Apptheme.backgroundColor,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _onConfirmPressed(context),
+                      icon: const Icon(Icons.shopping_cart),
+                      label: Text('Confirm (ETB${pendingPayments.length})'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Apptheme.buttonBackground1Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  PendingPaymentsScreen(pendingPayments: pendingPayments),
-            ),
-          );
-        },
-        label: Text('Confirm (${pendingPayments.length})'),
-        icon: const Icon(Icons.shopping_cart),
       ),
     );
   }
@@ -141,7 +202,7 @@ class EnhancedMenuItemCard extends StatelessWidget {
               children: [
                 Text(coffee.name, style: Apptheme.cardTitleSmall),
                 const SizedBox(height: 4),
-                Text('\$${coffee.price.toStringAsFixed(2)}',
+                Text('ETB${coffee.price.toStringAsFixed(2)}',
                     style: Apptheme.priceValueSmall),
                 const SizedBox(height: 8),
                 Row(

@@ -32,13 +32,29 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
   void _removeItem(int index) {
     setState(() {
       _pendingPayments.removeAt(index);
+      // Notify the parent (HomeScreen) about the updated list
       widget.onPendingPaymentsUpdated?.call(_pendingPayments);
     });
+  }
+
+  void _onConfirmPressed(BuildContext context) {
+    // Notify the parent (HomeScreen) that the payment is confirmed
+    widget.onPendingPaymentsUpdated?.call([]); // Clear the list
+    Navigator.pop(context); // Go back to the HomeScreen
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        automaticallyImplyLeading: false,
+        title: const Text('M Espresso'),
+        backgroundColor: Apptheme.buttonBackground1Color,
+      ),
       backgroundColor: Apptheme.backgroundColor,
       body: SafeArea(
         child: Padding(
@@ -60,7 +76,7 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
                     children: [
                       Text('Total Amount:', style: Apptheme.cardTitleSmall),
                       Text(
-                        '\$${totalAmount.toStringAsFixed(2)}',
+                        'ETB${totalAmount.toStringAsFixed(2)}',
                         style: Apptheme.priceValueSmall.copyWith(
                           color: Apptheme.buttonBackground1Color,
                         ),
@@ -96,10 +112,9 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
                                     color: Colors.green),
                               ),
                               onDismissed: (_) => _removeItem(index),
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: Apptheme.cardChipBackgroundColor,
+                              child: Card(
+                                color: Apptheme.cardChipBackgroundColor,
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
                                 child: ListTile(
@@ -118,7 +133,7 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
                                     style: Apptheme.cardTitleSmall,
                                   ),
                                   subtitle: Text(
-                                    '\$${coffee.price.toStringAsFixed(2)}',
+                                    'ETB${coffee.price.toStringAsFixed(2)}',
                                     style: Apptheme.priceValueSmall,
                                   ),
                                   trailing: IconButton(
@@ -133,6 +148,27 @@ class _PendingPaymentsScreenState extends State<PendingPaymentsScreen> {
                         },
                       ),
               ),
+              if (_pendingPayments.isNotEmpty)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                  color: Apptheme.backgroundColor,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _onConfirmPressed(context),
+                      icon: const Icon(Icons.check),
+                      label: const Text('Confirm Payment'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Apptheme.buttonBackground1Color,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
